@@ -1,0 +1,11 @@
+# My .toml file isn't going to look like yours, I promise.
+# That's the entire point of this file!
+
+# Each entry is a variable name set to a string,
+# or to an array of strings.  If an array of strings
+# is selected to be sent to a particular text channel,
+# each element is an individual line of text, interpreted
+# as if the ENTER key was pressed after typing in that element.
+
+who_are_you = "Hey, you're not my owner!"
+shutdown_denied = "Shutdown denied."

@@ -1,0 +1,77 @@
+# If you cloned this file's containing repository from GitHub,
+# then you need to copy the contents of this file to a file
+# named .config.toml.
+#
+# On a Windows system, use the command
+#    copy config.toml .config.toml
+#
+# On a *nix system, use the command
+#    cp config.toml .config.toml
+#
+# Afterwards, all your configuration will take place in .config.toml.
+
+# Application specific settings.
+[app]
+
+    # If this flag is set to true, the bot will not
+    # run, and instead, the program will print a message
+    # to the console telling you to check this file
+    # and make sure that the configuration is set up to
+    # your liking.
+    #
+    # Once that is done, you can set this variable
+    # to false, and run the bot as normal.
+    direct_attention_to_dot_config_dot_toml_and_exit = true
+
+# Discord-specific settings.
+[discord]
+
+    # This is the token used for the bot to log in.
+    # Tokens can be acquired via the Discord Developer Portal.
+    #
+    # The token can be a single string, or as an array,
+    # which will then be concatenated together (from
+    # first element to last) as a single string.
+    #
+    # NOTE: DO NOT SHARE YOUR TOKEN WITH ANYONE!!!!!
+    #
+    token = "<Your Token Here>"
+
+# Database settings.
+[database]
+    host = ""               # Host/IP of your database server
+    port = 0                # Port used to connect to server
+    username = ""           # Username
+    password = ""           # Password
+
+# Server settings.
+[servers]
+    [servers.http]
+        port = 0                        # Listening port (0 means let the OS choose)
+        file = "http_server.address"    # File containing socket information (IP and port)
+    [servers.push]
+        port = 0                        # Listening port (0 means let the OS choose)
+        file = "push_server.address"    # File containing socket information (IP and port)
+
+# Developer settings.
+[developer]
+
+    # This is an array of integer values representing your
+    # Discord user account IDs (that means YOU, not the bot).
+    ids = [-1]
+
+    # Set this to true if the bot is to run in debug mode.
+    # I put this here because I felt that this was more of
+    # a developer setting than an application setting.
+    debug = false
+
+    # A list of servers to test the bot on.
+    # These entries should be in the form of:
+    #    name = server id as an integer value
+    #
+    # If there are no entries, here, then that
+    # should be specified with a field in the form
+    # of:
+    #    null = 0
+    [developer.guilds]
+        null = 0
