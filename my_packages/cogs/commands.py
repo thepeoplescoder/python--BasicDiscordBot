@@ -1,6 +1,6 @@
 # Local imports
 from . import BaseCog
-from ..common import terminal as t
+
 from ..toml import config
 from ..toml import cheeky_responses
 
