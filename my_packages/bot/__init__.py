@@ -28,10 +28,17 @@ class Bot(discord.ext.commands.Bot):
         to it."""
         obj = cls(*args, **kwargs)
 
+        # Attach all cogs to the bot.
+        # This is where the "magic" happens, as all the code
+        # allowing the bot to listen to events happens in these
+        # two lines of code.
+        from .. import cogs
+        await cogs.add_all_cogs(obj)
+
         # Dictionary of server managers.
         obj.server_managers = dict()
 
-        # Push server manager.
+        # "Push server" manager.
         settings = config.toml["servers"]["push"]
         x = push.ServerManager(address_file=settings["file"])
         await x.start_server('', settings["port"])
@@ -52,13 +59,6 @@ class Bot(discord.ext.commands.Bot):
             intents=discord.Intents.all(),
             command_prefix=discord.ext.commands.when_mentioned,
         )
-
-        # Attach all cogs to the bot.
-        # This is where the "magic" happens, as all the code
-        # allowing the bot to listen to events happens in these
-        # two lines of code.
-        from .. import cogs
-        cogs.add_all_cogs(self)
 
         # This is for zlib_decompress().
         self.__zlib = None

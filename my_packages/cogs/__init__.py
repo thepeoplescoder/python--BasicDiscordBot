@@ -52,7 +52,7 @@ class BaseCog(CogType):
 BaseCog.internals = _api_commands
 
 # add_all_cogs ############################################
-def add_all_cogs(bot):
+async def add_all_cogs(bot):
     """Adds all cogs in this package to the specified bot."""
     from importlib import import_module
 
@@ -67,7 +67,7 @@ def add_all_cogs(bot):
         # to the given bot.
         if hasattr(module, "Cog"):
             if issubclass(module.Cog, BaseCog) and module.Cog.ADD_TO_BOT:
-                bot.add_cog(module.Cog(bot))
+                await bot.add_cog(module.Cog(bot))
                 color = t.bright_green          # Mark text as green to show cog was attached
 
         print(color(module.__name__))

@@ -7,12 +7,11 @@ verify_ssl = true
 
 [packages]
 "discord.py" = {extras = ["voice"], version = "*"}
-toml = "*"
 requests = "*"
 blessed = "*"
 jinxed = "*"
-bpython = "*"
 discord = "*"
+toml = "*"
 
 [requires]
-python_version = "3.8"
+python_version = "3.12"

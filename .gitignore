@@ -3,3 +3,5 @@
 *.py[cod]
 .config.toml
 cheeky_responses.toml
+Pipfile.lock.old
+push_server.address
