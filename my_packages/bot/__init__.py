@@ -7,6 +7,8 @@
 # Imports
 import asyncio
 import zlib
+import builtins
+from io import StringIO
 
 # Third party imports
 import discord.ext.commands
@@ -89,34 +91,24 @@ class Bot(discord.ext.commands.Bot):
 
     # print ###############################################
     async def print(self, *args, **kwargs):
-        from builtins import print as _print
-        from io import StringIO
-
-        # Create the string to print.
         s = StringIO()
-        _print(*args, **kwargs, file=s)
-        s = s.getvalue()
-
-        await self.__finish_printing(s)
+        builtins.print(*args, **kwargs, file=s)
+        await self.__finish_printing(s.getvalue())
 
     # __finish_printing ###################################
     async def __finish_printing(self, s):
         """Prints the text s to the console and forwards it to every
         client connected to the push server."""
-        from builtins import print as _print
-        _print(end=s)
+        builtins.print(end=s)
         await self.server_managers["push"].write_buffer_append(s.encode("utf-8"))
 
     # pprint ##############################################
     async def pprint(self, *args, **kwargs):
         """Pretty printer that uses our enhanced print."""
         from pprint import pprint as _pprint
-        from io import StringIO
         s = StringIO()
         _pprint(*args, **kwargs, stream=s)
-        s = s.getvalue()
-
-        await self.__finish_printing(s)
+        await self.__finish_printing(s.getvalue())
 
     # zlib_decompress #####################################
     def zlib_decompress(self, msg):
