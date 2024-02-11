@@ -45,7 +45,7 @@ class Cog(BaseCog, name=BaseCog.create_cog_name(__name__)):
     async def logout(self, ctx):
         """Causes the bot to log out of Discord."""
         await ctx.send("Going offline...")
-        await self.bot.logout()
+        await self.bot.close()
 
     # push_clients ########################################
     @developer.command()
