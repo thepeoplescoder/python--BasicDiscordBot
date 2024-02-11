@@ -26,19 +26,11 @@ class Cog(BaseCog, name=BaseCog.create_cog_name(__name__)):
         commands."""
 
         # Leave if the command category doesn't match.
-        x = util.is_command_match
-        x = x(ctx, self.developer.name, print=self.bot.print)
-        if not await x:
+        if not await util.is_command_match(ctx, self.developer.name, async_print=self.bot.print):
             return
 
-        # Access denied!
         await cheeky_responses.say("who_are_you", ctx)
-
-        # Show the context object.
-        await self.bot.print("-----Context Object-----")
-        v = vars(ctx)
-        for key in v:
-            await self.bot.print(t.bright_green(f"{key}: ") + str(v[key]))
+        await util.async_show_context_object(ctx, async_print=self.bot.print)
 
     # logout ##############################################
     @developer.command(aliases=["logoff", "shutdown", "exit"])
@@ -51,15 +43,5 @@ class Cog(BaseCog, name=BaseCog.create_cog_name(__name__)):
     @developer.command()
     async def push_clients(self, ctx):
         num_clients = len(self.bot.server_managers["push"])
-        use_plural = int(num_clients != 1)
-        plurals = {
-            "is":     {True: "are",     False: "is"},
-            "client": {True: "clients", False: "client"},
-        }
-        await ctx.send(
-            "There {} currently **{}** {} connected to the push server.".format(
-                plurals["is"][use_plural],
-                num_clients,
-                plurals["client"][use_plural],
-            )
-        )
+        w = util.plural_dict(num_clients, are="is", clients="client")
+        await ctx.send(f"There {w['are']} currently **{num_clients}** {w['clients']} connected to the push server.")

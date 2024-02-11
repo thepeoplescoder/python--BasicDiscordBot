@@ -6,34 +6,43 @@
 
 # Imports
 import asyncio
+from asyncio import Server
+from collections.abc import Coroutine
+from typing import Any
 
 # Local imports
 from ..common import util
 from ..common import terminal as t
 
+# Types
+_PrintCoroutine = Coroutine
+
 # class BaseServerManager #################################
 class BaseServerManager(object):
+    __server: Server
+    __connections: dict
+    __printer: _PrintCoroutine
 
     # __init__ ############################################
-    def __init__(self):
+    def __init__(self) -> None:
         self.__connections = dict()     # (StreamReader, StreamWriter) -> socket.socket
                                         # Keeps track of OPEN connections.
-        self.__server      = None
-        self.__printer     = util.async_wrap(print)
+        self.__server = None
+        self.__printer = util.async_wrap(print)
 
     # __len__ #############################################
-    def __len__(self):
+    def __len__(self) -> int:
         """The number of active connections."""
         return len(self.__connections)
 
     # property print ######################################
     @property
-    def print(self):
+    def print(self) -> Coroutine:
         return self.__printer
 
     # property print ######################################
     @print.setter
-    def print(self, f):
+    def print(self, f: Coroutine):
         self.__printer = f
 
     # property connections ################################
@@ -45,7 +54,7 @@ class BaseServerManager(object):
 
     # property server #####################################
     @property
-    def server(self):
+    def server(self) -> Server:
         """The asyncio.Server object being managed."""
         return self.__server
 
@@ -88,10 +97,8 @@ class BaseServerManager(object):
             self.__connections[(reader, writer)] = writer.get_extra_info('socket')
 
     # start_server ########################################
-    async def start_server(self, sock):
+    async def start_server(self, sock) -> asyncio.Server:
         """A wrapper around asyncio.start_server(), specific to this application."""
         if not self.__server:
-            self.__server = await asyncio.start_server(
-                self.on_client_connect, sock=sock,
-            )
+            self.__server = await asyncio.start_server(self.on_client_connect, sock=sock)
         return self.__server

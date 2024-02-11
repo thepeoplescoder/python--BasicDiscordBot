@@ -1,11 +1,11 @@
 import logging
 
-from .my_packages.bot    import Bot
-from .my_packages.common import terminal as t
-from .my_packages.toml   import config
+from .my_modules.bot    import Bot
+from .my_modules.common import terminal as t
+from .my_modules.toml   import config
 
 # main ####################################################
-async def main():
+async def main() -> None:
     """Entry point.  Allow asynchronous context immediately."""
     color = t.bright_yellow
 
@@ -24,8 +24,10 @@ async def main():
 
         # Set up the bot.
         print(t.bright_blue("Loading bot.  This may take a few moments."))
-        bot = await Bot.async_create_instance()                             # ;-)
+        bot = await Bot.async_get_instance()                             # ;-)
         print(t.bright_blue("Bot loaded successfully."))
 
         # Okay, it's ready to run!
         await bot.run_async()
+
+

@@ -18,17 +18,27 @@ from ..common  import terminal as t
 from ..common  import decorators
 from ..toml    import config
 from ..servers import push
+from ..servers import BaseServerManager
+from ..types import Self
+from ..types import ZlibDecompressObject
+from ..types import Buffer
 
 # class Bot ###############################################
 class Bot(discord.ext.commands.Bot):
+    _instance: Self = None
+    __zlib: ZlibDecompressObject
+    server_managers: dict[str, BaseServerManager]
 
-    # create_instance #####################################
+    # async_get_instance ##################################
     @classmethod
-    async def async_create_instance(cls, *args, **kwargs):
+    async def async_get_instance(cls, *args, **kwargs):
         """Creates an instance of this class and attaches
         objects that must be initialized in an async context
         to it."""
-        obj = cls(*args, **kwargs)
+        if cls._instance:
+            return cls._instance
+
+        cls._instance = obj = cls(*args, **kwargs)
 
         # Attach all cogs to the bot.
         # This is where the "magic" happens, as all the code
@@ -57,6 +67,9 @@ class Bot(discord.ext.commands.Bot):
         """Constructor.  It is preferred to create an instance
         of this class in an asynchronous context via the
         Bot.async_create_instance() function."""
+        if __class__._instance:
+            raise TypeError(f"Only one instance of {__class__} can exist.")
+
         super().__init__(
             intents=discord.Intents.all(),
             command_prefix=discord.ext.commands.when_mentioned,
@@ -73,17 +86,14 @@ class Bot(discord.ext.commands.Bot):
     # run_async ###########################################
     async def run_async(self):
         """Entry point for the bot."""
-        color   = t.bright_yellow
-        sm_push = self.server_managers["push"]
+        color = t.bright_yellow
+        sm_push: push.ServerManager = self.server_managers["push"]
 
         print(color("Running bot..."))
 
         async with sm_push.server:
             try:
-                await asyncio.gather(
-                    self.start(config.toml["discord"]["token"]),
-                    sm_push.server.start_serving(),
-                )
+                await asyncio.gather(self.start(config.toml["discord"]["token"]), sm_push.server.start_serving())
             finally:
                 await self.close()
                 await sm_push.close()
@@ -111,7 +121,7 @@ class Bot(discord.ext.commands.Bot):
         await self.__finish_printing(s.getvalue())
 
     # zlib_decompress #####################################
-    def zlib_decompress(self, msg):
+    def zlib_decompress(self, msg: Buffer) -> bytes:
         while True:
             try:
                 return self.__zlib.decompress(msg)
