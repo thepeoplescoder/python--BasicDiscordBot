@@ -1,54 +1,59 @@
 # Imports
 import inspect
 import functools
+import numbers
+
+from pathlib import Path
+from pathlib import StrPath
+from pkgutil import iter_modules
+from pkgutil import ModuleInfo
+
+from discord.ext.commands import Context
 
 from . import terminal as t
-
-# enforce_type ############################################
-def enforce_type(obj, _type):
-    """Raises an exception if the given object does not match the given type,
-    otherwise returns the object."""
-    if isinstance(obj, _type):
-        return obj
-    raise TypeError(f"Value {obj} must be of type {_type}.  Please check your code.")
+from ..types import Callable
+from ..types import Iterator
+from ..types import Any
+from ..types import Coroutine
+from ..types import PrintCoroutineFunction
 
 # package_path ############################################
-def package_path(dunder_file):
-    from pathlib import Path
+def package_path(dunder_file: StrPath) -> Path:
     return Path(dunder_file).resolve().parent
 
 # get_modules_from ########################################
-def get_modules_from(path):
-    from pkgutil import iter_modules
+def get_modules_from(path: object) -> Iterator[ModuleInfo]:
     return iter_modules([str(path)])        # Force string to avoid PosixPath/startswith bug
 
 # to_coroutine ############################################
-def to_coroutine(obj, *args, **kwargs):
-    """Intent of this function:
+# def to_coroutine(obj, *args, **kwargs):
+#     """Intent of this function:
 
-    Normal functions passed are now usable in await expressions.
-    Awaitables silently pass through.  Arguments are evaluated,
-    but ignored.
-    """
-    return obj if inspect.isawaitable(obj) else async_wrap(obj)(*args, **kwargs)
+#     Normal functions passed are now usable in await expressions.
+#     Awaitables silently pass through.  Arguments are evaluated,
+#     but ignored.
+#     """
+#     return obj if inspect.isawaitable(obj) else async_wrap(obj)(*args, **kwargs)
 
 # async_wrap ##############################################
-def async_wrap(f):
+def async_wrap[**T, U](
+        f: Callable[T, U] | Callable[T, Coroutine[Any, Any, U]]
+    ) -> Callable[T, Coroutine[Any, Any, U]]:
     """Wraps normal function into an async def"""
     if inspect.iscoroutinefunction(f):
         return f
     elif inspect.isawaitable(f):
-        raise ValueError(f"Unexpected awaitable of type {type(f)} passed: {f}")
+        raise TypeError(f"Unexpected awaitable of type {type(f)} passed: {f}")
     elif not callable(f):
-        raise ValueError(f"Expected callable, got {type(f)}")
+        raise TypeError(f"Expected callable, got {type(f)}")
 
     @functools.wraps(f)
-    async def wrapper(*args, **kwargs):
+    async def wrapper(*args, **kwargs) -> U:
         return f(*args, **kwargs)
     return wrapper
 
 # is_command_match ########################################
-async def is_command_match(ctx, name, *, async_print=async_wrap(print)):
+async def is_command_match(ctx: Context, name: str, *, async_print: PrintCoroutineFunction=async_wrap(print)) -> bool:
     if not ctx.command:
         await async_print("No command received by this listener.")
         return False
@@ -59,18 +64,19 @@ async def is_command_match(ctx, name, *, async_print=async_wrap(print)):
 
     return True
 
-async def async_show_dict(d, *, header=None, async_print=async_wrap(print)):
+# async_show_dict #########################################
+async def async_show_dict(d: dict, *, header: str=None, async_print: PrintCoroutineFunction=async_wrap(print)):
     if isinstance(header, str):
         await async_print(header)
     for key in d:
         await async_print( t.bright_green(f"{key}: ") + str(d[key]) )
 
 # show_context_object #####################################
-async def async_show_context_object(ctx, *, async_print=async_wrap(print)):
+async def async_show_context_object(ctx: Context, *, async_print: PrintCoroutineFunction=async_wrap(print)):
     await async_show_dict(vars(ctx), header="-----Context Object-----", async_print=async_print)
 
 # plural_dict #############################################
-def plural_dict(n, **kwargs_plural_to_singular) -> dict:
+def plural_dict(n: numbers.Real, **kwargs_plural_to_singular: str) -> dict[str, str]:
     is_plural = float(n) != 1
     result = {}
     for plural_form in kwargs_plural_to_singular:
