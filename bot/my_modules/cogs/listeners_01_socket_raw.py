@@ -7,9 +7,11 @@ from . import BaseCog
 from ..common import decorators
 from ..common import terminal as t
 
+from ..types import ClassVar
+
 # class Cog ###############################################
 class Cog(BaseCog, name=BaseCog.create_cog_name(__name__)):
-    ADD_TO_BOT = False
+    ADD_TO_BOT: ClassVar[bool] = False
 
     # __init__ ############################################
     def __init__(self, *args, **kwargs):
@@ -36,7 +38,7 @@ class Cog(BaseCog, name=BaseCog.create_cog_name(__name__)):
     # on_socket_raw_send ##################################
     @BaseCog.listener()
     @decorators.async_with_header(__name__)
-    async def on_socket_raw_send(self, payload):
+    async def on_socket_raw_send(self, payload: bytes | str):
         if isinstance(payload, bytes):
             payload = payload.decode("utf-8")
         await self.bot.print(t.bright_green(payload))

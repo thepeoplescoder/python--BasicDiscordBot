@@ -1,16 +1,20 @@
+# 3rd party imports
+from discord import Message
+
 # Local imports
 from . import BaseCog
 from ..common import decorators
 from ..common import terminal as t
+from ..types import ClassVar
 
 # class Cog ###############################################
 class Cog(BaseCog, name=BaseCog.create_cog_name(__name__)):
-    ADD_TO_BOT = True
+    ADD_TO_BOT: ClassVar[bool] = True
 
     # on_message ##########################################
     @BaseCog.listener()
     @decorators.async_with_header(__name__)
-    async def on_message(self, message):
+    async def on_message(self, message: Message) -> None:
         """This function simply logs all messages to
         the console that the bot is aware of."""
 

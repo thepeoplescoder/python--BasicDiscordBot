@@ -4,6 +4,9 @@ from ..common import decorators
 
 # class Cog ###############################################
 class Cog(BaseCog, name=BaseCog.create_cog_name(__name__)):
+    """These events were for user bots, but they are no longer supported.
+    
+    Source: https://github.com/Rapptz/discord.py/discussions/9732"""
 
     # on_group_join #######################################
     @BaseCog.listener()

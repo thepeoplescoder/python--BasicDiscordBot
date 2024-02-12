@@ -2,10 +2,11 @@
 from . import BaseCog
 from ..common import decorators
 from ..common import terminal as t
+from ..types import ClassVar
 
 # class Cog ###############################################
 class Cog(BaseCog, name=BaseCog.create_cog_name(__name__)):
-    ADD_TO_BOT = True
+    ADD_TO_BOT: ClassVar[bool] = True
 
     # on_ready ############################################
     @BaseCog.listener()

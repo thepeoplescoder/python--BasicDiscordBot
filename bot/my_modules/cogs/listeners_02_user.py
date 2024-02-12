@@ -1,3 +1,6 @@
+# 3rd party imports
+from discord import User
+
 # Local imports
 from . import BaseCog
 from ..common import decorators
@@ -8,5 +11,5 @@ class Cog(BaseCog, name=BaseCog.create_cog_name(__name__)):
     # on_user_update ######################################
     @BaseCog.listener()
     @decorators.async_with_header(__name__)
-    async def on_user_update(self, before, after):
+    async def on_user_update(self, before: User, after: User) -> None:
         pass

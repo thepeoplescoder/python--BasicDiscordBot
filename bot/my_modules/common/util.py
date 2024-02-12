@@ -4,7 +4,6 @@ import functools
 import numbers
 
 from pathlib import Path
-from pathlib import StrPath
 from pkgutil import iter_modules
 from pkgutil import ModuleInfo
 
@@ -15,6 +14,7 @@ from ..types import Callable
 from ..types import Iterator
 from ..types import Any
 from ..types import Coroutine
+from ..types import StrPath
 from ..types import PrintCoroutineFunction
 
 # package_path ############################################
@@ -54,15 +54,15 @@ def async_wrap[**T, U](
 
 # is_command_match ########################################
 async def is_command_match(ctx: Context, name: str, *, async_print: PrintCoroutineFunction=async_wrap(print)) -> bool:
-    if not ctx.command:
-        await async_print("No command received by this listener.")
-        return False
+    if ctx.command.name == name:
+        return True
 
-    elif ctx.command.name != name:
+    if ctx.command:
         await async_print(f"Command \"{ctx.command.name}\" does not match \"{name}\"")
-        return False
+    else:
+        await async_print("No command received by this listener.")
 
-    return True
+    return False
 
 # async_show_dict #########################################
 async def async_show_dict(d: dict, *, header: str=None, async_print: PrintCoroutineFunction=async_wrap(print)):

@@ -1,6 +1,6 @@
-from ..types import PrintCoroutineFunction
 from ..types import Callable
 from ..types import Awaitable
+from ..types import PrintCoroutineFunction
 
 # async_with_header #######################################
 def async_with_header():

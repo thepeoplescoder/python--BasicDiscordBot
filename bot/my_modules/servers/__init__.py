@@ -6,27 +6,29 @@
 
 # Imports
 import asyncio
-from asyncio import Server
-from collections.abc import Coroutine
-from typing import Any
+from socket import socket
 
 # Local imports
 from ..common import util
 from ..common import terminal as t
 
-# Types
-_PrintCoroutine = Coroutine
+from ..types import Server
+from ..types import StreamReader
+from ..types import StreamWriter
+from ..types import TypedDict
+
+from ..types import PrintCoroutineFunction
+from ..types import ConnectionDict
 
 # class BaseServerManager #################################
 class BaseServerManager(object):
-    __server: Server
-    __connections: dict
-    __printer: _PrintCoroutine
+    __server:      Server
+    __connections: ConnectionDict
+    __printer:     PrintCoroutineFunction
 
     # __init__ ############################################
     def __init__(self) -> None:
-        self.__connections = dict()     # (StreamReader, StreamWriter) -> socket.socket
-                                        # Keeps track of OPEN connections.
+        self.__connections = dict()     # Keeps track of OPEN connections.
         self.__server = None
         self.__printer = util.async_wrap(print)
 
@@ -37,18 +39,18 @@ class BaseServerManager(object):
 
     # property print ######################################
     @property
-    def print(self) -> Coroutine:
+    def print(self) -> PrintCoroutineFunction:
         return self.__printer
 
     # property print ######################################
     @print.setter
-    def print(self, f: Coroutine):
+    def print(self, f: PrintCoroutineFunction):
         self.__printer = f
 
     # property connections ################################
     @property
-    def connections(self):
-        """The clients connected to the server.  A copy of the
+    def connections(self) -> ConnectionDict:
+        """The clients connected to the server.  A shallow copy of the
         internal list is returned."""
         return self.__connections.copy()
 
@@ -59,7 +61,7 @@ class BaseServerManager(object):
         return self.__server
 
     # close_connection ####################################
-    async def close_connection(self, reader, writer):
+    async def close_connection(self, reader: StreamReader, writer: StreamWriter) -> None:
         """Silently close a connection."""
         if (reader, writer) in self.__connections:
 
@@ -82,13 +84,13 @@ class BaseServerManager(object):
             del self.__connections[(reader, writer)]
 
     # close ###############################################
-    async def close(self):
+    async def close(self) -> None:
         """Stops the server (TBD) and closes all client connections."""
         for key in self.connections:
             await self.close_connection(*key)
 
     # on_client_connect ###################################
-    async def on_client_connect(self, reader, writer):
+    async def on_client_connect(self, reader: StreamReader, writer: StreamWriter) -> None:
         """This gets called whenever a client connects. Subclasses
         overriding this function are still required to call it."""
 
@@ -97,7 +99,7 @@ class BaseServerManager(object):
             self.__connections[(reader, writer)] = writer.get_extra_info('socket')
 
     # start_server ########################################
-    async def start_server(self, sock) -> asyncio.Server:
+    async def start_server(self, sock: socket) -> asyncio.Server:
         """A wrapper around asyncio.start_server(), specific to this application."""
         if not self.__server:
             self.__server = await asyncio.start_server(self.on_client_connect, sock=sock)
